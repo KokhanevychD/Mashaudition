@@ -3,8 +3,11 @@ from django.db import models
 from player.models import Player
 
 
-# Create your models here.
-class AuditPS(models.model):
+class Document(models.Model):
+    excel = models.FileField(upload_to='uploads')
+
+
+class PlayerAudit(models.Model):
     player = models.ForeignKey(Player, on_delete=models.CASCADE,
                                related_name='audit')
     date_played = models.DateTimeField()

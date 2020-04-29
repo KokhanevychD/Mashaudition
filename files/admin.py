@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from files.models import AuditPS
+from files.models import PlayerAudit
 
 
-admin.site.register(AuditPS)
+admin.site.register(PlayerAudit)

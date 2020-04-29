@@ -6,3 +6,9 @@ class Player(models.Model):
 
     def __str__(self):
         return self.name
+
+    @classmethod
+    def create(cls, name):
+        obj = cls(name=name)
+        obj.save()
+        return obj
