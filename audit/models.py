@@ -1,4 +1,5 @@
 from datetime import datetime
+from django.utils import timezone
 from django.db import models
 
 from player.models import Player
@@ -20,7 +21,7 @@ class PlayerAudit(models.Model):
     get_s_coins = models.IntegerField()
     t_money_cashier = models.FloatField()
     w_money_cashier = models.FloatField()
-    # TODO create date parsed field and auto deletion by it
+
 
     @classmethod
     def create(cls, player, args_list):
