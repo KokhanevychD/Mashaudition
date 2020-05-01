@@ -9,13 +9,13 @@ class Player(models.Model):
         actions = {}
         for row in queryset:
             if row.action in actions.keys():
-                actions[row.action]['number'] += 1
-                actions[row.action]['row'].append(row)
+                actions[row.action].append(row)
             else:
-                actions[row.action] = {}
-                actions[row.action]['number'] = 1
-                actions[row.action]['row'] = [row, ]
+                actions[row.action] = [row, ]
         return actions
+
+    def uniq_game_type(self):
+        pass
 
     def __str__(self):
         return self.name
@@ -25,3 +25,21 @@ class Player(models.Model):
         obj = cls(name=name)
         obj.save()
         return obj
+
+# TODO actions list:
+# Регистрация в турнире
+# Награда: приз за выбивание
+# Промежуточная выплата в турнире
+# Победа в турнире
+# Награда из подарка
+# Награда из подарка (турнирный билет)
+# Получен турнирный приз (сателлит)
+# Регистрация в турнире (сателлит)
+# Ре-ентри в турнире
+# Деньги получены
+# Деньги отправлены
+# Бай-ин The Deal
+# Награда The Deal (деньги)
+# Адд-он в турнире
+# Турнир отменен (прокрутка вперед)
+# Компенсация рейка турнира
