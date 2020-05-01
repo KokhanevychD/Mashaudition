@@ -4,7 +4,6 @@ from django.urls import reverse_lazy
 from django.shortcuts import redirect
 
 from files.forms import DocumentForm
-from files.scraper import scraper
 
 
 class DocumentUpload(CreateView):
@@ -14,7 +13,8 @@ class DocumentUpload(CreateView):
 
     def form_valid(self, form):
         self.object = form.save()
-        scraper(self.object.excel)
+        self.object.parse()
+        # del file and file obj, dont need it
         os.remove(self.object.excel.path)
         self.object.delete()
         return redirect('home:home')
