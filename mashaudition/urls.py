@@ -8,8 +8,9 @@ from django.contrib.staticfiles.urls import (staticfiles_urlpatterns,
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('home.urls', namespace='home')),
-    # path('player/', include('player.urls', namespace='player')),
-    path('file/', include('files.urls', namespace='files'))
+    path('player/', include('player.urls', namespace='player')),
+    path('file/', include('files.urls', namespace='files')),
+    path('patteren/', include('patern.urls', namespace='pattern')),
 ]
 urlpatterns += staticfiles_urlpatterns()
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

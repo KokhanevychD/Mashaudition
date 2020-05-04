@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'files',
     'player',
     'audit',
+    'patern',
 ]
 
 MIDDLEWARE = [

@@ -4,19 +4,6 @@ from django.db import models
 class Player(models.Model):
     name = models.CharField(max_length=50)
 
-    def uniq_actions(self):
-        queryset = self.audit.all()
-        actions = {}
-        for row in queryset:
-            if row.action in actions.keys():
-                actions[row.action].append(row)
-            else:
-                actions[row.action] = [row, ]
-        return actions
-
-    def uniq_game_type(self):
-        pass
-
     def __str__(self):
         return self.name
 
@@ -26,20 +13,23 @@ class Player(models.Model):
         obj.save()
         return obj
 
-# TODO actions list:
-# Регистрация в турнире
-# Награда: приз за выбивание
-# Промежуточная выплата в турнире
-# Победа в турнире
-# Награда из подарка
-# Награда из подарка (турнирный билет)
-# Получен турнирный приз (сателлит)
-# Регистрация в турнире (сателлит)
-# Ре-ентри в турнире
-# Деньги получены
-# Деньги отправлены
-# Бай-ин The Deal
-# Награда The Deal (деньги)
-# Адд-он в турнире
-# Турнир отменен (прокрутка вперед)
-# Компенсация рейка турнира
+    def filter_data(self):
+        queryset = self.audit.all()
+        transfer_keys = ['Деньги получены', 'Деньги отправлены']
+        rake_back = ['Награда из подарка', 'the Deal']
+        income_tnmt_keys = ['Победа в турнире',
+                            'Промежуточная выплата',
+                            'Турнир отменен',
+                            'Награда', 'приз', 'Компенсация']
+        for row in queryset:
+            row.action_type = 'tournaments'
+            for pattern in transfer_keys:
+                if pattern in row.action:
+                    row.action_type = 'transfer'
+            for pattern in rake_back:
+                if pattern in row.action:
+                    row.action_type = 'rb'
+            for pattern in income_tnmt_keys:
+                if pattern in row.action and not row.action_type:
+                    row.action_type = 'income tournaments'
+            row.save()

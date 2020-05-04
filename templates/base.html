@@ -24,10 +24,10 @@
         <div class="collapse navbar-collapse" id="navbarsExampleDefault">
           <ul class="navbar-nav mr-auto">
             <li class="nav-item active">
-              <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+              <a class="nav-link" href="{% url 'player:list' %}">Игроки <span class="sr-only">(current)</span></a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#">Link</a>
+              <a class="nav-link" href="{% url 'pattern:list' %}">Паттерн</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="{% url 'files:upload' %}" tabindex="-1"  aria-disabled="true">Загрузка</a>
@@ -41,6 +41,7 @@
       </nav>
     <div class="col-sm-6 col-md-6" style="padding: 100px;">
      {% block content %}
+     
       {% endblock content %}
         </div>
      <!-- Optional JavaScript -->

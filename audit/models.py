@@ -1,10 +1,11 @@
 from datetime import datetime
-from django.utils import timezone
 from django.db import models
 
 from player.models import Player
+from patern.models import PatternBody
 
 
+# remaking excel data to model rows
 class PlayerAudit(models.Model):
     player = models.ForeignKey(Player, on_delete=models.CASCADE,
                                related_name='audit')
@@ -21,7 +22,7 @@ class PlayerAudit(models.Model):
     get_s_coins = models.IntegerField()
     t_money_cashier = models.FloatField()
     w_money_cashier = models.FloatField()
-
+    action_type = models.CharField(max_length=20, blank=True, null=True)
 
     @classmethod
     def create(cls, player, args_list):
@@ -33,8 +34,13 @@ class PlayerAudit(models.Model):
         kwargs = {}
         for idx in range(len(keys)):
             kwargs[keys[idx]] = args_list[idx]
+        pattern_query = PatternBody.objects.all()
+        for item in pattern_query:
+            if item.pattern in kwargs['action']:
+                kwargs['action_type'] = item.pattern_type.pattern_name
+                break
         date_format = '%d.%m.%Y %I:%M %p'
-        kwargs[keys[0]] = datetime.strptime(kwargs[keys[0]], date_format)
+        kwargs['date_played'] = datetime.strptime(kwargs[keys[0]], date_format)
         audit_row = cls(player=player, **kwargs)
         audit_row.save()
 
