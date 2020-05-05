@@ -9,6 +9,9 @@
         <h5 class="mb-0">
           <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
             {{obj.pattern_name}}
+            <a href="{{obj.del_absolute_url}}">
+            <button type="button" class="btn btn-outline-dark">Удалить</button>
+            </a>
           </button>
         </h5>
       </div>
@@ -20,6 +23,9 @@
                 {{item.pattern}}
             <a href="{{item.del_absolute_url}}">
             <button type="button" class="btn btn-outline-dark">Удалить</button>
+            </a>
+            <a href="{{item.remake_action_url}}">
+            <button type="button" class="btn btn-outline-dark">Обновить записи</button>
             </a>
         </p>
         {% endfor %}

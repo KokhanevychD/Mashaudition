@@ -1,4 +1,5 @@
 from django.db import models
+from django.urls import reverse
 
 
 class Player(models.Model):
@@ -33,3 +34,9 @@ class Player(models.Model):
                 if pattern in row.action and not row.action_type:
                     row.action_type = 'income tournaments'
             row.save()
+
+    def del_absolute_url(self):
+        return reverse('player:del-player', kwargs={'pk': self.pk})
+
+    def get_absolute_url(self):
+        return reverse('player:detail-player', kwargs={'pk': self.pk})

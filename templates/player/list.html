@@ -2,10 +2,13 @@
 
 {% block content %}
     {% for obj in object_list %}
-
-  <a href="#" class="list-group-item list-group-item-action active">
-    Игрок: {{obj}}
-  </a>
+    <div class="card" style="width: 18rem;">
+      <div class="card-body">
+        <h5 class="card-title">Игрок: {{obj}}</h5>
+        <a href="{{obj.get_absolute_url}}" class="card-link">Детали</a>
+        <a href="{{obj.del_absolute_url}}" class="card-link">Удалить</a>
+      </div>
+    </div>
     {% endfor %}
 {% endblock content %}
     
