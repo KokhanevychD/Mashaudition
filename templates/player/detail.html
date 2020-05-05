@@ -35,8 +35,12 @@
               <tr>
                 <th scope="col">Дата</th>
                 <th scope="col">Действие</th>
+                <th scope="col">Номер</th>
+                <th scope="col">Игра</th>
                 <th scope="col">Трансакции</th>
+                <th scope="col">Тур.деньги</th>
                 <th scope="col">Касса</th>
+                <th scope="col">Получено коинов</th>
               </tr>
             </thead>
             {% for item in value %}
@@ -44,8 +48,13 @@
               <tr>
                 <td>{{item.date_played}}</td>
                 <td>{{item.action}}</td>
+                <td>{{item.action_number}}</td>
+                <td>{{item.game}}</td>
                 <td>{{item.summary}}</td>
+                <td>{{item.t_money}}</td>
                 <td>{{item.cashier}}</td>
+                <td>{{item.get_s_coins}}</td>
+               
               </tr>
             </tbody>
             {% endfor %}
