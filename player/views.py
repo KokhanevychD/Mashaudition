@@ -28,18 +28,21 @@ class PlayerDetail(DetailView):
         context = super().get_context_data(**kwargs)
         player = Player.objects.get(pk=self.kwargs['pk'])
         context['title'] = player
+        # data containers
         details = {}
-        tournaments = {'sum': 0, 'count': 0}
+        tournaments = {}
+        tour_counts = {'sum': 0, 'count': 0}
+
         for item in player.audit.all():
             if item.action_type == 'Турниры':
                 if f'bi: {item.summary}' not in tournaments.keys():
-                    tournaments[f'bi: {item.summary}'] = [item, ]
-                    tournaments['sum'] += item.summary
-                    tournaments['count'] += 1
+                    tournaments[item.summary] = [item, ]
+                    tour_counts['sum'] += item.summary
+                    tour_counts['count'] += 1
                 else:
-                    tournaments[f'bi: {item.summary}'].append(item)
-                    tournaments['sum'] += item.summary
-                    tournaments['count'] += 1
+                    tournaments[item.summary].append(item)
+                    tour_counts['sum'] += item.summary
+                    tour_counts['count'] += 1
                 continue
             if item.action_type not in details.keys():
                 details[item.action_type] = {}
@@ -55,9 +58,16 @@ class PlayerDetail(DetailView):
                 else:
                     details['Не распознано']['queryset'].append(item)
                     details['Не распознано']['sum'] += item.summary
-        tournaments['sum'] = round(tournaments['sum'], 2)
-        tournaments['abi'] = round(-1*(tournaments['sum']/tournaments['count']),2)
-        tournaments['profit'] = tournaments['sum'] + details['Выплаты']['sum']
+        tour_counts['sum'] = round(tour_counts['sum'], 2)
+        tour_counts['abi'] = round(-1*(tour_counts['sum']/tour_counts['count']),2)
+        # sorting keys of dict for queryset with tournaments
+        buf_dict = {}
+        for key in sorted(tournaments.keys()):
+            buf_dict[f'bi: {key}'] = tournaments[key]
+        tournaments = buf_dict
+
+        tour_counts['profit'] = tour_counts['sum'] + details['Выплаты']['sum']
+        tournaments.update(tour_counts)
         details['Турниры'] = tournaments
         context['details'] = details
         return context
