@@ -48,6 +48,13 @@ class PlayerDetail(DetailView):
             else:
                 details[item.action_type]['queryset'].append(item)
                 details[item.action_type]['sum'] += item.summary
+            if not item.action_type:
+                if len(details['Не распознано']['queryset']) < 1:
+                    details['Не распознано']['queryset'] = [item]
+                    details['Не распознано']['sum'] = item.summary
+                else:
+                    details['Не распознано']['queryset'].append(item)
+                    details['Не распознано']['sum'] += item.summary
         tournaments['sum'] = round(tournaments['sum'], 2)
         tournaments['abi'] = round(-1*(tournaments['sum']/tournaments['abi']),
                                    2)
