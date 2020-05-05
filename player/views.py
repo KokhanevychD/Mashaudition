@@ -29,17 +29,17 @@ class PlayerDetail(DetailView):
         player = Player.objects.get(pk=self.kwargs['pk'])
         context['title'] = player
         details = {}
-        tournaments = {'sum': 0, 'abi': 0}
+        tournaments = {'sum': 0, 'count': 0}
         for item in player.audit.all():
             if item.action_type == 'Турниры':
                 if f'bi: {item.summary}' not in tournaments.keys():
                     tournaments[f'bi: {item.summary}'] = [item, ]
                     tournaments['sum'] += item.summary
-                    tournaments['abi'] += 1
+                    tournaments['count'] += 1
                 else:
                     tournaments[f'bi: {item.summary}'].append(item)
                     tournaments['sum'] += item.summary
-                    tournaments['abi'] += 1
+                    tournaments['count'] += 1
                 continue
             if item.action_type not in details.keys():
                 details[item.action_type] = {}
@@ -56,8 +56,7 @@ class PlayerDetail(DetailView):
                     details['Не распознано']['queryset'].append(item)
                     details['Не распознано']['sum'] += item.summary
         tournaments['sum'] = round(tournaments['sum'], 2)
-        tournaments['abi'] = round(-1*(tournaments['sum']/tournaments['abi']),
-                                   2)
+        tournaments['abi'] = round(-1*(tournaments['sum']/tournaments['count']),2)
         tournaments['profit'] = tournaments['sum'] + details['Выплаты']['sum']
         details['Турниры'] = tournaments
         context['details'] = details

@@ -5,6 +5,7 @@
   <li class="list-group-item">Игрок: {{object}}</li>
   <li class="list-group-item">АБИ: {{details.Турниры.abi}}</li>
   <li class="list-group-item">Сумма закупки: {{details.Турниры.sum}}</li>
+  <li class="list-group-item">Кол-во турниров и ребаев: {{details.Турниры.count}}</li>
   <li class="list-group-item">Выплаты: {{details.Выплаты.sum}}</li>
   <li class="list-group-item">Профит: {{details.Турниры.profit}}</li>
   <li class="list-group-item">Трансферы: {{details.Трансферы.sum}}</li>
@@ -17,7 +18,7 @@
 <div class="collapse" id="Tornaments">
 <div id="accordion" >
 {% for key, value in details.Турниры.items %}
-{% if key != 'sum' and key != 'abi' and key != 'profit'%}
+{% if key != 'sum' and key != 'abi' and key != 'profit' and key != 'count'%}
   <div class="card" style="margin-top: 5px;">
     <div class="card-header" id="headingOne">
       <h5 class="mb-0">
