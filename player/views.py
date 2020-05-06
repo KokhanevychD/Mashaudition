@@ -35,8 +35,8 @@ class PlayerDetail(DetailView):
 
         for item in player.audit.all():
             if item.action_type == 'Турниры':
-                if f'bi: {item.summary}' not in tournaments.keys():
-                    tournaments[item.summary] = [item, ]
+                if  item.summary not in tournaments.keys():
+                    tournaments[item.summary] = [item]
                     tour_counts['sum'] += item.summary
                     tour_counts['count'] += 1
                 else:
