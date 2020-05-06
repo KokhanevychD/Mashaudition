@@ -24,7 +24,7 @@
       <h5 class="mb-0">
         <button class="btn btn-link" data-toggle="collapse" 
         data-target="#{{key|cut:':'|cut:'-'|cut:' '|cut:'.'}}" aria-expanded="true" aria-controls="collapseOne">
-          {{key}}
+          {{key}}, количество турниров: {{ value|length }}
         </button>
       </h5>
     </div>
@@ -55,7 +55,6 @@
                 <td>{{item.t_money}}</td>
                 <td>{{item.cashier}}</td>
                 <td>{{item.get_s_coins}}</td>
-               
               </tr>
             </tbody>
             {% endfor %}
@@ -81,19 +80,27 @@
             <table class="table">
             <thead>
               <tr>
-                <th scope="col">Дата</th>
-                <th scope="col">Действие</th>
-                <th scope="col">Трансакции</th>
-                <th scope="col">Касса</th>
+                  <th scope="col">Дата</th>
+                  <th scope="col">Действие</th>
+                  <th scope="col">Номер</th>
+                  <th scope="col">Игра</th>
+                  <th scope="col">Транзакции</th>
+                  <th scope="col">Тур.деньги</th>
+                  <th scope="col">Касса</th>
+                  <th scope="col">Получено коинов</th>
               </tr>
             </thead>
-            {% for object in details|get_item:key|get_item:'queryset' %}
+            {% for item in details|get_item:key|get_item:'queryset' %}
                 <tbody>
                 <tr>
-                    <td>{{object.date_played}}</td>
-                    <td>{{object.action}}</td>
-                    <td>{{object.summary}}</td>
-                    <td>{{object.cashier}}</td>
+                    <td>{{item.date_played}}</td>
+                    <td>{{item.action}}</td>
+                    <td>{{item.action_number}}</td>
+                    <td>{{item.game}}</td>
+                    <td>{{item.summary}}</td>
+                    <td>{{item.t_money}}</td>
+                    <td>{{item.cashier}}</td>
+                    <td>{{item.get_s_coins}}</td>
                 </tr>
                 </tbody>
             {% endfor %}

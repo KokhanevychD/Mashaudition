@@ -3,6 +3,8 @@ from django.urls import reverse
 
 
 class Player(models.Model):
+    class Meta:
+        ordering = ['pk']
     name = models.CharField(max_length=50)
 
     def __str__(self):

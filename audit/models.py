@@ -7,6 +7,8 @@ from patern.models import PatternBody
 
 # remaking excel data to model rows
 class PlayerAudit(models.Model):
+    class Meta:
+        ordering = ['date_played']
     player = models.ForeignKey(Player, on_delete=models.CASCADE,
                                related_name='audit')
     date_played = models.DateTimeField()
@@ -34,6 +36,7 @@ class PlayerAudit(models.Model):
         kwargs = {}
         for idx in range(len(keys)):
             kwargs[keys[idx]] = args_list[idx]
+        # search for pattern in action field
         pattern_query = PatternBody.objects.all()
         for item in pattern_query:
             if item.pattern in kwargs['action']:

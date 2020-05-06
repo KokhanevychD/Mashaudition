@@ -34,6 +34,7 @@ class PlayerDetail(DetailView):
         tour_counts = {'sum': 0, 'count': 0}
 
         for item in player.audit.all():
+            # tournament selection
             if item.action_type == 'Турниры':
                 if  item.summary not in tournaments.keys():
                     tournaments[item.summary] = [item]
@@ -44,6 +45,7 @@ class PlayerDetail(DetailView):
                     tour_counts['sum'] += item.summary
                     tour_counts['count'] += 1
                 continue
+            # other types
             if item.action_type not in details.keys():
                 details[item.action_type] = {}
                 details[item.action_type]['queryset'] = [item]
@@ -51,6 +53,7 @@ class PlayerDetail(DetailView):
             else:
                 details[item.action_type]['queryset'].append(item)
                 details[item.action_type]['sum'] += item.summary
+            # items with no action_type, for rework
             if not item.action_type:
                 if len(details['Не распознано']['queryset']) < 1:
                     details['Не распознано']['queryset'] = [item]
@@ -58,15 +61,28 @@ class PlayerDetail(DetailView):
                 else:
                     details['Не распознано']['queryset'].append(item)
                     details['Не распознано']['sum'] += item.summary
+
+        if 'Ребаи' in details.keys():
+            rebuy = details['Ребаи']
+            rebuy_count = details['Ребаи']['sum']
+        else:
+            rebuy = []
+            rebuy_count = 0
+
         tour_counts['sum'] = round(tour_counts['sum'], 2)
-        tour_counts['abi'] = round(-1*(tour_counts['sum']/tour_counts['count']),2)
-        # sorting keys of dict for queryset with tournaments
+        trnmt_and_rebuy_count = tour_counts['count'] + len(rebuy)
+        tour_counts['abi'] = -1 * (tour_counts['sum'] / trnmt_and_rebuy_count)
+        tour_counts['abi'] = round(tour_counts['abi'])
+        # sorting keys of dict for tournament's queryset
         buf_dict = {}
         for key in sorted(tournaments.keys()):
             buf_dict[f'bi: {key}'] = tournaments[key]
         tournaments = buf_dict
+        # sum of known ingame money movement to find profit
+        tour_counts['profit'] = tour_counts['sum'] + \
+            details['Выплаты']['sum'] + rebuy_count
 
-        tour_counts['profit'] = tour_counts['sum'] + details['Выплаты']['sum']
+        tour_counts['profit'] = round(tour_counts['profit'], 2)
         tournaments.update(tour_counts)
         details['Турниры'] = tournaments
         context['details'] = details
