@@ -1,11 +1,18 @@
 import os
+import pandas
+import re
+from langdetect import detect
 from xlrd import XLRDError
+from datetime import datetime
 
 from django.views.generic.edit import CreateView
 from django.urls import reverse_lazy
 from django.shortcuts import redirect
 
 from files.forms import DocumentForm
+from player.models import Player
+from audit.models import PlayerAudit
+from patern.models import PatternBody
 
 
 class DocumentUpload(CreateView):
@@ -16,13 +23,65 @@ class DocumentUpload(CreateView):
     success_url = reverse_lazy('player:list')
 
     def form_valid(self, form):
+        d_start = datetime.now()
         self.object = form.save()
         try:
-            self.object.parse()
+            self.parse(self.object.excel)
         except XLRDError:
             os.remove(self.object.excel.path)
             self.object.delete()
             return redirect('files:upload')
         os.remove(self.object.excel.path)
         self.object.delete()
+        d_end = datetime.now()
+        print(d_end - d_start)
         return redirect('player:list')
+
+    def parse(self, excel):
+        # search player nick name from title of PS excel audit file
+        # working with RU files
+        head = pandas.read_excel(excel, nrows=0, usecols=[0])
+        player = head.columns[0]
+        lang = detect(player)
+        if lang == 'ru':
+            player = re.search(r'для (\S+)', player)
+            date_format = r'%d.%m.%Y %I:%M %p'
+        else:
+            player = re.search(r'Audit .(\S+). ', player)
+            date_format = r'%Y/%m/%d %I:%M %p'
+        player = player.group(1)
+
+        # search for player object
+        # if there is now player - create new instance of Player model
+
+        player_obj = Player.objects.filter(name=player)
+        if len(player_obj) < 1:
+            player_obj = Player(name=player)
+            player_obj.save()
+
+        # cutin empty colums
+        excel_rows = pandas.read_excel(excel, header=2)
+        excel_rows.dropna(axis=1, how='all', inplace=True)
+        excel.close()
+        # set list of keys
+        columns = excel_rows.columns.values.tolist()
+        keys = ['date_played', 'action', 'action_number',
+                'game', 'curency', 'summary', 's_coins', 't_money', 'w_money',
+                'cashier', 'get_s_coins', 't_money_cashier', 'w_money_cashier',
+                ]
+        # queryset of patterns
+        pattern_query = PatternBody.objects.all()
+        for idx, row in excel_rows.iterrows():
+            kwargs = {}
+            for idx in range(len(keys)):
+                kwargs[keys[idx]] = row[columns[idx]]
+            kwargs['date_played'] = datetime.strptime(kwargs[keys[0]],
+                                                      date_format)
+            if type(kwargs['summary']) is str:
+                kwargs['summary'] = float(kwargs['summary'].strip('(,)')) * -1
+            for item in pattern_query:
+                if item.pattern in kwargs['action']:
+                    kwargs['action_type'] = item.pattern_type.pattern_name
+                    break
+            audit = PlayerAudit(player=player_obj, **kwargs)
+            audit.save()
