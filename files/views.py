@@ -68,6 +68,7 @@ class DocumentUpload(CreateView):
                 ]
         # queryset of patterns
         pattern_query = PatternBody.objects.all()
+        # run loop to create PlayerAudit instences, format date to date field and write action type
         for idx, row in excel_rows.iterrows():
             kwargs = {}
             for idx in range(len(keys)):
