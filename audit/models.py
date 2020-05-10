@@ -42,8 +42,14 @@ class PlayerAudit(models.Model):
             if item.pattern in kwargs['action']:
                 kwargs['action_type'] = item.pattern_type.pattern_name
                 break
-        date_format = '%d.%m.%Y %I:%M %p'
-        kwargs['date_played'] = datetime.strptime(kwargs[keys[0]], date_format)
+        date_format = r'%d.%m.%Y %I:%M %p'
+        date_format_pses = r'%Y/%m/%d %I:%M %p'
+        try:
+            kwargs['date_played'] = datetime.strptime(kwargs[keys[0]],
+                                                      date_format)
+        except ValueError:
+            kwargs['date_played'] = datetime.strptime(kwargs[keys[0]],
+                                                      date_format_pses)
         audit_row = cls(player=player, **kwargs)
         audit_row.save()
 

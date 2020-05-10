@@ -1,4 +1,5 @@
 import os
+from xlrd import XLRDError
 
 from django.views.generic.edit import CreateView
 from django.urls import reverse_lazy
@@ -16,7 +17,12 @@ class DocumentUpload(CreateView):
 
     def form_valid(self, form):
         self.object = form.save()
-        self.object.parse()
+        try:
+            self.object.parse()
+        except XLRDError:
+            os.remove(self.object.excel.path)
+            self.object.delete()
+            return redirect('files:upload')
         os.remove(self.object.excel.path)
         self.object.delete()
         return redirect('player:list')

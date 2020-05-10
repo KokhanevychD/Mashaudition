@@ -1,8 +1,9 @@
-from django.db import models
-
 import pandas
 import re
-import os
+from langdetect import detect
+
+
+from django.db import models
 
 from player.models import Player
 from audit.models import PlayerAudit
@@ -17,7 +18,11 @@ class Document(models.Model):
         excel = self.excel
         head = pandas.read_excel(excel, nrows=0, usecols=[0])
         player = head.columns[0]
-        player = re.search(r'для (\S+)', player)
+        lang = detect(player)
+        if lang == 'ru':
+            player = re.search(r'для (\S+)', player)
+        else:
+            player = re.search(r'Audit .(\S+). ', player)
         player = player.group(1)
 
         # search for player object
@@ -25,7 +30,8 @@ class Document(models.Model):
 
         player_obj = Player.objects.filter(name=player)
         if len(player_obj) < 1:
-            player_obj = Player.create(player)
+            player_obj = Player(name=player)
+            player_obj.save()
 
         # cutin empty colums
         excel_rows = pandas.read_excel(excel, header=2)
