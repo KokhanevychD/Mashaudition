@@ -12,6 +12,9 @@
             <a href="{{obj.del_absolute_url}}">
             <button type="button" class="btn btn-outline-dark">Удалить</button>
             </a>
+            <a href="{{obj.create_body}}">
+            <button type="button" class="btn btn-outline-dark">Добавить паттерн</button>
+            </a>
           </button>
         </h5>
       </div>
@@ -36,9 +39,9 @@
 {% endfor %}
 </div>
 <a href="{% url 'pattern:new-type' %}">
-<button type="button" class="btn btn-success">Новый паттерн</button>
+<button type="button" style='margin-top: 10px' class="btn btn-success">Новый тип паттерна</button>
 </a>
-<a href="{% url 'pattern:new-body' %}">
+{% comment %} <a href="{% url 'pattern:new-body' %}">
     <button type="button" class="btn btn-success">Новое тело паттерна</button>
-    </a>
+    </a> {% endcomment %}
 {% endblock content %}

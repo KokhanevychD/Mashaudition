@@ -12,7 +12,7 @@ from patern.views import (PatternTypeList,
 app_name = 'pattern'
 urlpatterns = [
     path('', PatternTypeList.as_view(), name='list'),
-    path('create/body', PatternBodyCreate.as_view(), name='new-body'),
+    path('create/body/<int:pk>', PatternBodyCreate.as_view(), name='new-body'),
     path('create/type', PatternTypeCreate.as_view(), name='new-type'),
     path('del/body/<int:pk>', PatternBodyDel.as_view(), name='del-body'),
     path('del/type/<int:pk>', PatternTypeDel.as_view(), name='del-type'),

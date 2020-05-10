@@ -10,6 +10,9 @@ class PatternType(models.Model):
 
     def del_absolute_url(self):
         return reverse('pattern:del-type', kwargs={"pk": self.pk})
+    
+    def create_body(self):
+        return reverse('pattern:new-body', kwargs={"pk": self.pk})
 
 
 class PatternBody(models.Model):
@@ -24,7 +27,6 @@ class PatternBody(models.Model):
 
     def remake_action_url(self):
         return reverse('pattern:remake-action', kwargs={'pk': self.pk})
-
 
     def __str__(self):
         return self.pattern

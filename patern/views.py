@@ -34,13 +34,15 @@ class PatternBodyCreate(CreateView):
     success_url = reverse_lazy('pattern:list')
 
     def form_valid(self, form):
-        form.save()
+        obj = form.save(commit=False)
+        obj.pattern_type = PatternType.objects.get(pk=self.kwargs['pk'])
         return super().form_valid(form)
 
 
 class PatternBodyDel(DeleteView):
     model = PatternBody
     success_url = reverse_lazy('pattern:list')
+
 
 class PatternTypeDel(DeleteView):
     model = PatternType

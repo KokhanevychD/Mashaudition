@@ -6,7 +6,7 @@ from patern.models import PatternBody, PatternType
 class PatternBodyForm(forms.ModelForm):
     class Meta:
         model = PatternBody
-        fields = '__all__'
+        fields = ['pattern']
 
 
 class PatternTypeForm(forms.ModelForm):

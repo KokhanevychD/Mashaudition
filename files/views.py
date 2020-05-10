@@ -70,13 +70,10 @@ class DocumentUpload(CreateView):
         pattern_query = PatternBody.objects.all()
         # run loop to create PlayerAudit instences,
         # format date to date field and write action type
-        for idx, row in excel_rows.iterrows():
-            print(row)
+        for _, row in excel_rows.iterrows():
             kwargs = {}
             for key in range(len(keys)):
                 kwargs[keys[key]] = row[columns[key]]
-                print(columns[key])
-                print(row[columns[key]])
             kwargs['date_played'] = datetime.strptime(kwargs[keys[0]],
                                                       date_format)
             for item in pattern_query:
