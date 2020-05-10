@@ -23,7 +23,6 @@ class DocumentUpload(CreateView):
     success_url = reverse_lazy('player:list')
 
     def form_valid(self, form):
-        d_start = datetime.now()
         self.object = form.save()
         try:
             self.parse(self.object.excel)
@@ -33,8 +32,6 @@ class DocumentUpload(CreateView):
             return redirect('files:upload')
         os.remove(self.object.excel.path)
         self.object.delete()
-        d_end = datetime.now()
-        print(d_end - d_start)
         return redirect('player:list')
 
     def parse(self, excel):
