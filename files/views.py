@@ -57,7 +57,7 @@ class DocumentUpload(CreateView):
             player_obj.save()
 
         # cutin empty colums
-        excel_rows = pandas.read_excel(excel, header=2)
+        excel_rows = pandas.read_excel(excel, header=2, parse_dates=False)
         excel_rows.dropna(axis=1, how='all', inplace=True)
         excel.close()
         # set list of keys
@@ -68,15 +68,17 @@ class DocumentUpload(CreateView):
                 ]
         # queryset of patterns
         pattern_query = PatternBody.objects.all()
-        # run loop to create PlayerAudit instences, format date to date field and write action type
+        # run loop to create PlayerAudit instences,
+        # format date to date field and write action type
         for idx, row in excel_rows.iterrows():
+            print(row)
             kwargs = {}
-            for idx in range(len(keys)):
-                kwargs[keys[idx]] = row[columns[idx]]
+            for key in range(len(keys)):
+                kwargs[keys[key]] = row[columns[key]]
+                print(columns[key])
+                print(row[columns[key]])
             kwargs['date_played'] = datetime.strptime(kwargs[keys[0]],
                                                       date_format)
-            if type(kwargs['summary']) is str:
-                kwargs['summary'] = float(kwargs['summary'].strip('(,)')) * -1
             for item in pattern_query:
                 if item.pattern in kwargs['action']:
                     kwargs['action_type'] = item.pattern_type.pattern_name

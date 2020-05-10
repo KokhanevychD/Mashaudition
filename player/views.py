@@ -54,13 +54,14 @@ class PlayerDetail(DetailView):
                 details[item.action_type]['queryset'].append(item)
                 details[item.action_type]['sum'] += item.summary
             # items with no action_type, for rework
-            if not item.action_type:
-                if len(details['Не распознано']['queryset']) < 1:
-                    details['Не распознано']['queryset'] = [item]
-                    details['Не распознано']['sum'] = item.summary
+            if item.action_type == '':
+                if 'Unknown' not in details.keys():
+                    details['Unknown'] = {}
+                    details['Unknown']['queryset'] = [item]
+                    details['Unknown']['sum'] = item.summary
                 else:
-                    details['Не распознано']['queryset'].append(item)
-                    details['Не распознано']['sum'] += item.summary
+                    details['Unknown']['queryset'].append(item)
+                    details['Unknown']['sum'] += item.summary
 
         if 'Ребаи' in details.keys():
             rebuy = details['Ребаи']
@@ -68,11 +69,11 @@ class PlayerDetail(DetailView):
         else:
             rebuy = []
             rebuy_count = 0
-
-        tour_counts['sum'] = round(tour_counts['sum'], 2)
-        trnmt_and_rebuy_count = tour_counts['count'] + len(rebuy)
-        tour_counts['abi'] = -1 * (tour_counts['sum'] / trnmt_and_rebuy_count)
-        tour_counts['abi'] = round(tour_counts['abi'])
+        if tour_counts['sum'] > 0:
+            tour_counts['sum'] = round(tour_counts['sum'], 2)
+            trnmt_and_rebuy_count = tour_counts['count'] + len(rebuy)
+            tour_counts['abi'] = -1 * (tour_counts['sum'] / trnmt_and_rebuy_count)
+            tour_counts['abi'] = round(tour_counts['abi'])
         # sorting keys of dict for tournament's queryset
         buf_dict = {}
         for key in sorted(tournaments.keys()):
