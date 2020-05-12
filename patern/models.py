@@ -10,7 +10,7 @@ class PatternType(models.Model):
 
     def del_absolute_url(self):
         return reverse('pattern:del-type', kwargs={"pk": self.pk})
-    
+
     def create_body(self):
         return reverse('pattern:new-body', kwargs={"pk": self.pk})
 
