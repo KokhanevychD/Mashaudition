@@ -37,6 +37,7 @@ class DocumentUpload(CreateView):
     def parse(self, excel):
         # search player nick name from title of PS excel audit file
         # working with RU files
+
         head = pandas.read_excel(excel, nrows=0, usecols=[0])
         player = head.columns[0]
         lang = detect(player)
@@ -47,14 +48,20 @@ class DocumentUpload(CreateView):
             player = re.search(r'Audit .(\S+). ', player)
             date_format = r'%Y/%m/%d %I:%M %p'
         player = player.group(1)
-
         # search for player object
         # if there is now player - create new instance of Player model
-
-        player_obj = Player.objects.filter(name=player)
-        if len(player_obj) < 1:
-            player_obj = Player(name=player)
-            player_obj.save()
+        if 'pk' in self.kwargs.keys():
+            player_obj = Player.objects.get(pk=self.kwargs['pk'])
+            if player_obj.name != player:
+                player_obj.name = player_obj.name + ', ' + player
+                player_obj.save()
+        else:
+            player_obj = Player.objects.filter(name=player)
+            if len(player_obj) < 1:
+                player_obj = Player(name=player)
+                player_obj.save()
+            else:
+                player_obj = player_obj[0]
 
         # cutin empty colums
         excel_rows = pandas.read_excel(excel, header=2, parse_dates=False)

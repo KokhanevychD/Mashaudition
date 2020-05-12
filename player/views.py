@@ -2,6 +2,7 @@ from django.views.generic import DeleteView, ListView, DetailView
 from django.urls import reverse_lazy
 
 from player.models import Player
+from patern.models import PatternType
 
 
 class PlayerList(ListView):
@@ -26,65 +27,75 @@ class PlayerDetail(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        player = Player.objects.get(pk=self.kwargs['pk'])
-        context['title'] = player
-        # data containers
-        details = {}
+        context['title'] = self.object
+        context['keys'] = []
+        currency_list = ['USD', 'EUR']
+        detail = {}
+        detail['tour'] = {}
+        for currency in currency_list:
+            detail['tour'][currency] = self.get_tournaments(currency)
+
+        for item in PatternType.objects.exclude(pattern_name='Турниры'):
+            detail[item.pattern_name] = {}
+            context['keys'].append(item.pattern_name)
+            for currency in currency_list:
+                detail[item.pattern_name][currency] = self.get_patern(item.pattern_name, currency)
+
+        for currency in currency_list:
+            if detail['tour'][currency] is not None:
+                count = detail['tour'][currency]['count']
+                t_sum = detail['tour'][currency]['sum']
+                abi = t_sum/count
+                detail['tour'][currency]['abi'] = round(abi, 2) * -1
+            else:
+                continue
+
+            if detail['Ребаи'][currency] is not None:
+                r_sum = detail['Ребаи'][currency]['sum']
+                t_sum = t_sum + r_sum
+            detail['tour'][currency]['sum'] = round(t_sum, 2)
+
+            if detail['Выплаты'][currency] is not None:
+                pay_off = detail['Выплаты'][currency]['sum']
+                profit = pay_off + t_sum
+                detail['Выплаты'][currency]['sum'] = round(pay_off, 2)
+            else:
+                profit = t_sum
+            detail['tour'][currency]['profit'] = round(profit, 2)
+        context['detail'] = detail
+        return context
+
+    def get_tournaments(self, currency):
         tournaments = {}
         tour_counts = {'sum': 0, 'count': 0}
-
-        for item in player.audit.all():
-            # tournament selection
-            if item.action_type == 'Турниры':
-                if  item.summary not in tournaments.keys():
-                    tournaments[item.summary] = [item]
-                    tour_counts['sum'] += item.summary
-                    tour_counts['count'] += 1
-                else:
-                    tournaments[item.summary].append(item)
-                    tour_counts['sum'] += item.summary
-                    tour_counts['count'] += 1
-                continue
-            # other types
-            if item.action_type not in details.keys():
-                details[item.action_type] = {}
-                details[item.action_type]['queryset'] = [item]
-                details[item.action_type]['sum'] = item.summary
+        queryset = self.object.audit.filter(action_type='Турниры',
+                                            curency=currency)
+        if len(queryset) < 1:
+            return None
+        for item in queryset:
+            if item.summary not in tournaments.keys():
+                tournaments[item.summary] = [item]
+                tour_counts['sum'] += item.summary
+                tour_counts['count'] += 1
             else:
-                details[item.action_type]['queryset'].append(item)
-                details[item.action_type]['sum'] += item.summary
-            # items with no action_type, for rework
-            if item.action_type == '':
-                if 'Unknown' not in details.keys():
-                    details['Unknown'] = {}
-                    details['Unknown']['queryset'] = [item]
-                    details['Unknown']['sum'] = item.summary
-                else:
-                    details['Unknown']['queryset'].append(item)
-                    details['Unknown']['sum'] += item.summary
-
-        if 'Ребаи' in details.keys():
-            rebuy = details['Ребаи']
-            rebuy_count = details['Ребаи']['sum']
-        else:
-            rebuy = []
-            rebuy_count = 0
-        if tour_counts['sum'] > 0:
-            tour_counts['sum'] = round(tour_counts['sum'], 2)
-            trnmt_and_rebuy_count = tour_counts['count'] + len(rebuy)
-            tour_counts['abi'] = -1 * (tour_counts['sum'] / trnmt_and_rebuy_count)
-            tour_counts['abi'] = round(tour_counts['abi'])
+                tournaments[item.summary].append(item)
+                tour_counts['sum'] += item.summary
+                tour_counts['count'] += 1
         # sorting keys of dict for tournament's queryset
         buf_dict = {}
         for key in sorted(tournaments.keys()):
-            buf_dict[f'bi: {key}'] = tournaments[key]
+            buf_dict[f'BI: {key} {currency}'] = tournaments[key]
         tournaments = buf_dict
-        # sum of known ingame money movement to find profit
-        tour_counts['profit'] = tour_counts['sum'] + \
-            details['Выплаты']['sum'] + rebuy_count
-
-        tour_counts['profit'] = round(tour_counts['profit'], 2)
         tournaments.update(tour_counts)
-        details['Турниры'] = tournaments
-        context['details'] = details
-        return context
+        return tournaments
+
+    def get_patern(self, pattern, currency):
+        container_dict = {'query': [], 'sum': 0}
+        queryset = self.object.audit.filter(action_type=pattern,
+                                            curency=currency)
+        if len(queryset) < 1:
+            return None
+        for item in queryset:
+            container_dict['query'].append(item)
+            container_dict['sum'] += item.summary
+        return container_dict

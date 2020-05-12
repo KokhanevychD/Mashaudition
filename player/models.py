@@ -15,3 +15,6 @@ class Player(models.Model):
 
     def get_absolute_url(self):
         return reverse('player:detail-player', kwargs={'pk': self.pk})
+
+    def add_document(self):
+        return reverse('files:upload-pk', kwargs={'pk': self.pk})

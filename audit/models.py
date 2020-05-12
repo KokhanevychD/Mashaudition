@@ -22,7 +22,7 @@ class PlayerAudit(models.Model):
     get_s_coins = models.IntegerField()
     t_money_cashier = models.FloatField()
     w_money_cashier = models.FloatField()
-    action_type = models.CharField(max_length=20, default='')
+    action_type = models.CharField(max_length=20, default='NAN')
 
     def __str__(self):
         try:

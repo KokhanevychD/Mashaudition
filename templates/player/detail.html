@@ -1,37 +1,67 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<ul class="list-group">
-  <li class="list-group-item">Игрок: {{object}}</li>
-  <li class="list-group-item">АБИ: {{details.Турниры.abi}}</li>
-  <li class="list-group-item">Сумма закупки: {{details.Турниры.sum}}</li>
-  <li class="list-group-item">Кол-во турниров и ребаев: {{details.Турниры.count}}</li>
-  <li class="list-group-item">Выплаты: {{details.Выплаты.sum}}</li>
-  <li class="list-group-item">Профит: {{details.Турниры.profit}}</li>
-  <li class="list-group-item">Трансферы: {{details.Трансферы.sum}}</li>
-</ul>
-<p>
-  <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#Tornaments" aria-expanded="false" aria-controls="Tornaments" style="margin-top: 10px;">
-    Турниры по АБИ
-  </button>
-</p>
-<div class="collapse" id="Tornaments">
-<div id="accordion" >
-{% for key, value in details.Турниры.items %}
-{% if key != 'sum' and key != 'abi' and key != 'profit' and key != 'count'%}
-  <div class="card" style="margin-top: 5px;">
-    <div class="card-header" id="headingOne">
-      <h5 class="mb-0">
-        <button class="btn btn-link" data-toggle="collapse" 
-        data-target="#{{key|cut:':'|cut:'-'|cut:' '|cut:'.'}}" aria-expanded="true" aria-controls="collapseOne">
-          {{key}}, количество турниров: {{ value|length }}
-        </button>
-      </h5>
+{% load player_filter %}
+<div class="container">
+<div class="row">
+{% for key, value in detail.tour.items %}
+  {% if detail.tour|get_item:key is not None %}
+    <div class="col">
+    <ul class="list-group">
+      <li class="list-group-item">Игрок: {{object}}</li>
+      <li class="list-group-item">Валюта: <b>{{key}}</b></li>
+      <li class="list-group-item">ABI: {{value.abi}}</li>
+      <li class="list-group-item"> Профит: {{value.profit}}</li>
+      <li class="list-group-item">Сумма закупки: {{value.sum}}</li>
+      <li class="list-group-item">Кол-во турниров: {{value.count}}</li>
+      <li class="list-group-item">Выплаты: {{detail.Выплаты|get_item:key|get_item:'sum'}}</li>
+      <li class="list-group-item">Трансферы: {{detail.Трансферы|get_item:key|get_item:'sum'}}</li>
+    </ul>
     </div>
+  {% endif %}
+{% endfor %}
+</div>
 
-    <div id="{{key|cut:':'|cut:'-'|cut:' '|cut:'.'}}" class="collapse" aria-labelledby="headingOne" data-parent="#accordion">
-      <div class="card-body">
-        <table class="table">
+<div class="row">
+{% for key, value in detail.tour.items %}
+  {% if detail.tour|get_item:key is not None %}
+
+    <div class="col">
+      <p> 
+        <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#{{key}}" aria-expanded="false" aria-controls="Tornaments_{{key}}" style="margin-top: 10px;">
+          Турниры по ABI: {{key}}
+        </button>
+      </p>
+    </div>
+  {% endif %}
+{% endfor %}
+</div>
+
+<div class="row">
+{% for key, value in detail.tour.items %}
+  {% if detail.tour|get_item:key is not None %}
+  <div class="col">
+<div class="collapse multi-collapse" id="{{key}}">
+<div class="card card-body">
+
+  
+  {% for tour_query in detail.tour|get_item:key %}
+  {% if tour_query|tour_key_chek is True%}
+
+  <div id="accordion">
+    <div class="card">
+      <div class="card-header" id="headingOne">
+        <h5 class="mb-0">
+          <button class="btn btn-link" data-toggle="collapse" data-target="#{{tour_query|cut:' '|cut:':'|cut:'.'|cut:'-'}}" aria-expanded="true" aria-controls="collapseOne">
+            {{tour_query}}, кол-во: {{detail.tour|get_item:key|get_item:tour_query|length}}
+          </button>
+        </h5>
+      </div>
+
+      <div id="{{tour_query|cut:' '|cut:':'|cut:'.'|cut:'-'}}" class="collapse" aria-labelledby="headingOne" data-parent="#accordion">
+        <div class="card-body">
+
+          <table class="table">
             <thead>
               <tr>
                 <th scope="col">Дата</th>
@@ -45,8 +75,9 @@
                 <th scope="col">Получено коинов</th>
               </tr>
             </thead>
-            {% for item in value %}
             <tbody>
+      {% for item in detail.tour|get_item:key|get_item:tour_query %}
+
               <tr>
                 <td>{{item.date_played}}</td>
                 <td>{{item.action}}</td>
@@ -58,60 +89,77 @@
                 <td>{{item.cashier}}</td>
                 <td>{{item.get_s_coins}}</td>
               </tr>
+       {% endfor %}
             </tbody>
-            {% endfor %}
-          </table>
+            </table> 
+
+
+        </div>
       </div>
     </div>
-
   </div>
-  {% endif %}
-  {% endfor %}
+{% endif %}
+{% endfor %}
+
+
 </div>
 </div>
-{% for key in details.keys %}
-{% if key != 'Турниры'%}
-<p>
-  <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#{{key}}" aria-expanded="false" aria-controls="collapseExample">
-    {% load player_filter %}
-    {{key}}, сумма: {{details|get_item:key|get_item:'sum'}}
-  </button>
-</p>
-<div class="collapse" id="{{key}}">
+{% comment %} col {% endcomment %}
+</div>
+{% endif %}
+{% endfor %}
+</div>
+
+
+{% for pattern in keys %}
+<div class="row">
+{% for currency in detail|get_item:pattern %}
+{% if detail|get_item:pattern|get_item:currency is not None %}
+  <div class="col">
+    <p>
+      <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#{{pattern}}{{currency}}" aria-expanded="false" aria-controls="collapseExample">
+        {{pattern}}, {{currency}}: {{detail|get_item:pattern|get_item:currency|get_item:'sum'}}
+      </button>
+    </p>
+  </div>
+
+<div class="collapse" id="{{pattern}}{{currency}}">
   <div class="card card-body">
             <table class="table">
             <thead>
               <tr>
-                  <th scope="col">Дата</th>
-                  <th scope="col">Действие</th>
-                  <th scope="col">Номер</th>
-                  <th scope="col">Игра</th>
-                  <th scope="col">Валюта</th>
-                  <th scope="col">Транзакции</th>
-                  <th scope="col">Тур.деньги</th>
-                  <th scope="col">Касса</th>
-                  <th scope="col">Получено коинов</th>
+                <th scope="col">Дата</th>
+                <th scope="col">Действие</th>
+                <th scope="col">Номер</th>
+                <th scope="col">Игра</th>
+                <th scope="col">Валюта</th>
+                <th scope="col">Транзакции</th>
+                <th scope="col">Тур.деньги</th>
+                <th scope="col">Касса</th>
+                <th scope="col">Получено коинов</th>
               </tr>
             </thead>
-            {% for item in details|get_item:key|get_item:'queryset' %}
-                <tbody>
-                <tr>
-                    <td>{{item.date_played}}</td>
-                    <td>{{item.action}}</td>
-                    <td>{{item.action_number}}</td>
-                    <td>{{item.game}}</td>
-                    <td>{{item.curency}}</td>
-                    <td>{{item.summary}}</td>
-                    <td>{{item.t_money}}</td>
-                    <td>{{item.cashier}}</td>
-                    <td>{{item.get_s_coins}}</td>
-                </tr>
+            <tbody>
+  {% for item in detail|get_item:pattern|get_item:currency|get_item:'query' %}
+                  <tr>
+                <td>{{item.date_played}}</td>
+                <td>{{item.action}}</td>
+                <td>{{item.action_number}}</td>
+                <td>{{item.game}}</td>
+                <td>{{item.curency}}</td>
+                <td>{{item.summary}}</td>
+                <td>{{item.t_money}}</td>
+                <td>{{item.cashier}}</td>
+                <td>{{item.get_s_coins}}</td>
+              </tr>
+    {% endfor %}
                 </tbody>
-            {% endfor %}
-          </table>
+            </table> 
   </div>
 </div>
 {% endif %}
 {% endfor %}
+</div>
+{% endfor %}
+
 {% endblock content %}
-    
