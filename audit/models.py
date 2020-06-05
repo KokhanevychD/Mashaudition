@@ -11,7 +11,7 @@ class PlayerAudit(models.Model):
                                related_name='audit')
     date_played = models.DateTimeField()
     action = models.CharField(max_length=255)
-    action_number = models.BigIntegerField()
+    action_number = models.CharField(max_length=255)
     game = models.CharField(max_length=255)
     curency = models.CharField(max_length=5)
     summary = models.FloatField()

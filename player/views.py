@@ -28,12 +28,14 @@ class PlayerDetail(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = self.object
-        context['keys'] = []
+        context['keys'] = ['unknown',]
         currency_list = ['USD', 'EUR']
         detail = {}
         detail['tour'] = {}
+        detail['unknown'] = {}
         for currency in currency_list:
             detail['tour'][currency] = self.get_tournaments(currency)
+            detail['unknown'][currency] = self.get_unknown(currency)
 
         for item in PatternType.objects.exclude(pattern_name='Турниры'):
             detail[item.pattern_name] = {}
@@ -63,6 +65,7 @@ class PlayerDetail(DetailView):
                 profit = t_sum
             detail['tour'][currency]['profit'] = round(profit, 2)
         context['detail'] = detail
+
         return context
 
     def get_tournaments(self, currency):
@@ -98,4 +101,15 @@ class PlayerDetail(DetailView):
         for item in queryset:
             container_dict['query'].append(item)
             container_dict['sum'] += item.summary
+        return container_dict
+
+    def get_unknown(self, currency):
+        container_dict = {'query': [], 'sum': 0}
+        queryset = self.object.audit.filter(action_type='NAN', curency=currency)
+        if len(queryset) < 1:
+            return None
+        for item in queryset:
+            container_dict['query'].append(item)
+            container_dict['sum'] += item.summary
+        container_dict['sum'] = round(container_dict['sum'], 2)
         return container_dict
