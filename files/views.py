@@ -81,7 +81,12 @@ class DocumentUpload(CreateView):
             kwargs = {}
             for key in range(len(keys)):
                 kwargs[keys[key]] = row[columns[key]]
-            kwargs['date_played'] = datetime.strptime(kwargs[keys[0]],
+            try:
+                kwargs['date_played'] = datetime.strptime(str(kwargs[keys[0]]),
+                                                      date_format)
+            except ValueError:
+                date_format = r'%Y-%m-%d %H:%M:%S'
+                kwargs['date_played'] = datetime.strptime(str(kwargs[keys[0]]),
                                                       date_format)
             for item in pattern_query:
                 if item.pattern in kwargs['action']:

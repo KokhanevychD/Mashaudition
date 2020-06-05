@@ -15,7 +15,9 @@
       <li class="list-group-item">Сумма закупки: {{value.sum}}</li>
       <li class="list-group-item">Кол-во турниров: {{value.count}}</li>
       <li class="list-group-item">Выплаты: {{detail.Выплаты|get_item:key|get_item:'sum'}}</li>
+
       <li class="list-group-item">Трансферы: {{detail.Трансферы|get_item:key|get_item:'sum'}}</li>
+
     </ul>
     </div>
   {% endif %}
