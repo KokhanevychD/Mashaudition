@@ -41,12 +41,12 @@ class DocumentUpload(CreateView):
         head = pandas.read_excel(excel, nrows=0, usecols=[0])
         player = head.columns[0]
         lang = detect(player)
+        date_format = [r'%d.%m.%Y %I:%M %p', r'%Y/%m/%d %I:%M %p',
+                       r'%Y-%m-%d %H:%M:%S']
         if lang == 'ru':
             player = re.search(r'для (\S+)', player)
-            date_format = r'%d.%m.%Y %I:%M %p'
         else:
             player = re.search(r'Audit .(\S+). ', player)
-            date_format = r'%Y/%m/%d %I:%M %p'
         player = player.group(1)
         # search for player object
         # if there is now player - create new instance of Player model
@@ -81,13 +81,11 @@ class DocumentUpload(CreateView):
             kwargs = {}
             for key in range(len(keys)):
                 kwargs[keys[key]] = row[columns[key]]
-            try:
-                kwargs['date_played'] = datetime.strptime(str(kwargs[keys[0]]),
-                                                      date_format)
-            except ValueError:
-                date_format = r'%Y-%m-%d %H:%M:%S'
-                kwargs['date_played'] = datetime.strptime(str(kwargs[keys[0]]),
-                                                      date_format)
+            for item in date_format:
+                try:
+                    kwargs['date_played'] = datetime.strptime(str(kwargs[keys[0]]), item)
+                except ValueError:
+                    continue
             for item in pattern_query:
                 if item.pattern in kwargs['action']:
                     kwargs['action_type'] = item.pattern_type.pattern_name
